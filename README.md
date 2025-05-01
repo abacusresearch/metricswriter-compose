@@ -18,7 +18,7 @@ docker compose up -d --wait
 ```
 
 ### Access
-- Grafana: https://127.0.0.1:3000/
-- InfluxDB: https://127.0.0.1:8086/
+- Grafana: http://127.0.0.1:3000/
+- InfluxDB: http://127.0.0.1:8086/
 
 Get credentials from [compose.yaml](./compose.yaml).
