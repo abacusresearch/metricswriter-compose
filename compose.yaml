@@ -18,7 +18,7 @@ services:
       - metrics
 
   grafana:
-    image: grafana/grafana:11.6.1
+    image: grafana/grafana:11.6.2
     restart: always
     environment:
       GF_SECURITY_ADMIN_PASSWORD: <super-secret-password>
