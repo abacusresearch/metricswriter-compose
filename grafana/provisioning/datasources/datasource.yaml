@@ -15,6 +15,7 @@ prune: false
 datasources:
   - name: InfluxDB
     type: influxdb
+    uid: P951FEA4DE68E13C5
     access: proxy
     orgId: 1
     url: http://influxdb2:8086

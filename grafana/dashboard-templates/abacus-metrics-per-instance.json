@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 7,
+  "id": null,
   "links": [],
   "panels": [
     {
@@ -141,7 +141,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -273,7 +273,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -424,7 +424,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -561,7 +561,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -725,7 +725,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -871,7 +871,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -1051,7 +1051,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -1182,7 +1182,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -5540,7 +5540,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -5661,7 +5661,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -14896,16 +14896,14 @@
       "type": "timeseries"
     }
   ],
-  "preload": false,
   "schemaVersion": 41,
-  "tags": [],
+  "tags": [
+    "1.0.0"
+  ],
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "abametrics",
-          "value": "abametrics"
-        },
+        "current": {},
         "definition": "buckets()",
         "description": "",
         "label": "Kunde",
@@ -14922,10 +14920,7 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "",
-          "value": ""
-        },
+        "current": {},
         "definition": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> group(columns: [\"instancename\"])\r\n  |> distinct(column: \"instancename\")\r\n  |> keep(columns: [\"_value\"])\r\n",
         "description": "",
         "label": "Instanz",
@@ -14942,10 +14937,7 @@
       },
       {
         "allValue": "Alle",
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
+        "current": {},
         "definition": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_memory_used_bytes\")\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"job\"] != \"AbaMetricsService\" and r[\"job\"] != \"AbaMonitorService\" and r[\"job\"] != \"AbaAuditServer\")\r\n  |> group(columns: [\"job\"])\r\n  |> distinct(column: \"job\")\r\n  |> keep(columns: [\"_value\"])",
         "hide": 2,
         "includeAll": true,
@@ -14967,10 +14959,17 @@
     "from": "2025-04-09T10:09:21.497Z",
     "to": "2025-04-09T18:08:13.088Z"
   },
-  "timepicker": {},
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
   "timezone": "browser",
-  "title": "Abacus Metric pro Instanz",
-  "uid": "ee9k8wz2cgx6123",
+  "title": "Abacus Metric pro Instanz - Detail",
+  "uid": "ee9k8wz2cgx612",
   "version": 1,
   "weekStart": "monday"
 }

@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 5,
+  "id": null,
   "links": [],
   "panels": [
     {
@@ -85,9 +85,13 @@
           "fieldMinMax": true,
           "links": [
             {
-              "targetBlank": true,
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "targetBlank": false,
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -129,13 +133,6 @@
         "y": 1
       },
       "id": 2,
-      "links": [
-        {
-          "targetBlank": true,
-          "title": "Details pro Instanz",
-          "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&timezone=browser&${bucket:queryparam}&var-instancename=&var-service=$__all"
-        }
-      ],
       "options": {
         "legend": {
           "calcs": [
@@ -157,7 +154,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -221,9 +218,13 @@
           "fieldMinMax": true,
           "links": [
             {
-              "targetBlank": true,
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "targetBlank": false,
+              "title": "Schnellübersicht:",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -285,7 +286,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -350,9 +351,13 @@
           "fieldMinMax": true,
           "links": [
             {
-              "targetBlank": true,
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "targetBlank": false,
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -414,7 +419,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -479,9 +484,13 @@
           "fieldMinMax": true,
           "links": [
             {
-              "targetBlank": true,
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "targetBlank": false,
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -543,7 +552,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -621,9 +630,13 @@
           "fieldMinMax": true,
           "links": [
             {
-              "targetBlank": true,
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "targetBlank": false,
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -667,15 +680,12 @@
       "options": {
         "legend": {
           "calcs": [
-            "mean",
             "max",
             "last"
           ],
           "displayMode": "table",
           "placement": "right",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
+          "showLegend": true
         },
         "timezone": [
           "browser"
@@ -686,7 +696,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -751,9 +761,13 @@
           "fieldMinMax": true,
           "links": [
             {
-              "targetBlank": true,
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "targetBlank": false,
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -815,7 +829,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -879,9 +893,13 @@
           "fieldMinMax": true,
           "links": [
             {
-              "targetBlank": true,
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "targetBlank": false,
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -944,7 +962,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -1009,8 +1027,12 @@
           "fieldMinMax": true,
           "links": [
             {
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -1072,7 +1094,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "11.6.2",
       "targets": [
         {
           "datasource": {
@@ -1137,8 +1159,12 @@
           "fieldMinMax": true,
           "links": [
             {
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -1211,7 +1237,7 @@
           "refId": "A"
         }
       ],
-      "title": "JVM - Handels",
+      "title": "JVM - Handles",
       "type": "timeseries"
     },
     {
@@ -1278,8 +1304,12 @@
           "fieldMinMax": true,
           "links": [
             {
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -1407,9 +1437,13 @@
           "fieldMinMax": true,
           "links": [
             {
-              "targetBlank": true,
-              "title": "Details pro Instanz",
-              "url": "https://metrics.ops.abanet.io/d/ee9k8wz2cgx6od/abacus-metric-pro-instanz?orgId=1&from=${__from}&to=${__to}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all"
+              "targetBlank": false,
+              "title": "Schnellübersicht",
+              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+            },
+            {
+              "title": "Details",
+              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
             }
           ],
           "mappings": [],
@@ -1487,16 +1521,14 @@
       "type": "timeseries"
     }
   ],
-  "preload": false,
   "schemaVersion": 41,
-  "tags": [],
+  "tags": [
+    "1.0.0"
+  ],
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "abametrics",
-          "value": "abametrics"
-        },
+        "current": {},
         "definition": "buckets()",
         "description": "",
         "label": "Kunde",
@@ -1520,7 +1552,6 @@
   },
   "timepicker": {
     "refresh_intervals": [
-      "5s",
       "10s",
       "30s",
       "1m",
@@ -1529,7 +1560,7 @@
   },
   "timezone": "browser",
   "title": "Abacus Metric pro Datenpool",
-  "uid": "eea5s47saopa123",
+  "uid": "eea5s47saopa12",
   "version": 1,
   "weekStart": "monday"
 }
