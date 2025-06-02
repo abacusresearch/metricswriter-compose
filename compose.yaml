@@ -1,0 +1,44 @@
+services:
+  influxdb2:
+    image: "influxdb:2.7"
+    restart: always
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: <super-secret-password>
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: 833737e4-3013-4303-b242-979c536b8a1e
+      DOCKER_INFLUXDB_INIT_ORG: abacus
+      DOCKER_INFLUXDB_INIT_BUCKET: abametrics
+    volumes:
+      - influxdb2_data:/var/lib/influxdb2"
+      - influxdb2_config:/etc/influxdb2"
+    ports:
+      - 8086:8086
+    networks:
+      - metrics
+
+  grafana:
+    image: grafana/grafana:11.6.2
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: <super-secret-password>
+      GF_ANALYTICS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_FEEDBACK_LINKS_ENABLED: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana"
+      - ./grafana/dashboard-templates:/etc/dashboard-templates
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - 3000:3000
+    networks:
+      - metrics
+
+networks:
+  metrics:
+    name: metrics
+
+volumes:
+  influxdb2_config:
+  influxdb2_data:
+  grafana_data:
