@@ -1,0 +1,717 @@
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: Abacus Alerts over 5 Minutes
+    folder: Abacus Alerts
+    interval: 5m
+    rules:
+      - uid: aembyj08qndvkb
+        title: "Abacus CPU-Usage Too High\t"
+        condition: D
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P951FEA4DE68E13C5
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"abametrics\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"process_cpu_usage\")\r\n  |> keep(columns: [\"_time\", \"_value\",\"job\", \"instancename\"])\r\n  |> group(columns: [\"instancename\", \"job\"]) \r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: []
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: max
+              refId: B
+              settings:
+                mode: dropNN
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: $B * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: math
+          - refId: D
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 50
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: C
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: D
+              type: threshold
+        dashboardUid: ee9k8wz2cgx612
+        panelId: 2
+        noDataState: KeepLast
+        execErrState: KeepLast
+        for: 10m
+        annotations:
+          __dashboardUid__: ee9k8wz2cgx612
+          __panelId__: "2"
+          description: Abacus CPU-Usage Too High for {{ $labels.instancename }} has exceeded 80% for the last 5 minutes on installation {{ $labels.customer }}
+          summary: Abacus CPU-Usage Too High for {{ $labels.instancename }}
+        labels:
+          customer: abametrics
+          priority: high
+        isPaused: false
+      - uid: bembyj08qndvld
+        title: Abacus Memory-Usage Too High
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P951FEA4DE68E13C5
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"abametrics\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r[\"_measurement\"] == \"jvm_memory_used_bytes\" or\r\n    r[\"_measurement\"] == \"jvm_memory_max_bytes\"\r\n  )\r\n  |> filter (fn: (r) => r[\"area\"] == \"heap\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\", \"_measurement\", \"job\", \"area\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\", \"instancename\", \"job\", \"area\"], columnKey: [\"_measurement\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) =>\r\n    exists r.jvm_memory_max_bytes and\r\n    exists r.jvm_memory_used_bytes and\r\n    r.jvm_memory_max_bytes > 0.0\r\n  )\r\n  |> map(fn: (r) => ({\r\n      _time: r._time,\r\n      instancename: r.instancename,\r\n      job: r.job,\r\n      area: r.area,\r\n      _value: (float(v: r.jvm_memory_used_bytes) / float(v: r.jvm_memory_max_bytes)) * 100.0\r\n    })\r\n  )\r\n  |> filter(fn: (r) =>\r\n    exists r._value and r._value > 0.0\r\n  )\r\n  |> yield(name: \"memory_usage_percent\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: max
+              refId: B
+              settings:
+                mode: dropNN
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 90
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: ee9k8wz2cgx612
+        panelId: 1
+        noDataState: KeepLast
+        execErrState: KeepLast
+        for: 10m
+        annotations:
+          __dashboardUid__: ee9k8wz2cgx612
+          __panelId__: "1"
+          description: Memory-Usage Too High for {{ $labels.instancename }} has exceeded 85% for the last 5 minutes on installation {{ $labels.customer }}
+          summary: Memory-Usage Too High for {{ $labels.instancename }}
+        labels:
+          customer: abametrics
+          priority: high
+        isPaused: false
+      - uid: bembyj08t5a82a
+        title: Abacus GC-Usage Too High
+        condition: D
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P951FEA4DE68E13C5
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"abametrics\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_gc_overhead\")\r\n  |> keep(columns: [\"_time\", \"_value\",\"job\", \"instancename\"])\r\n  |> group(columns: [\"instancename\", \"job\"]) \r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: []
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: max
+              refId: B
+              settings:
+                mode: dropNN
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: $B * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: math
+          - refId: D
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 1
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: C
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: D
+              type: threshold
+        dashboardUid: ee9k8wz2cgx612
+        panelId: 2
+        noDataState: KeepLast
+        execErrState: KeepLast
+        annotations:
+          __dashboardUid__: ee9k8wz2cgx612
+          __panelId__: "2"
+          description: Abacus GC-Usage Too High for {{ $labels.instancename }} has exceeded 80% for the last 5 minutes on installation {{ $labels.customer }}
+          summary: Abacus GC-Usage Too High for {{ $labels.instancename }}
+        labels:
+          customer: abametrics
+          priority: high
+        isPaused: false
+  - orgId: 1
+    name: System Alerts over 5 Minutes
+    folder: Abacus Alerts
+    interval: 5m
+    rules:
+      - uid: bembyj07rot1cf
+        title: CPU-Usage High
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P951FEA4DE68E13C5
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"abametrics\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_cpu_used\")\r\n  |> group(columns: [\"instancename\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"value\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: []
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: max
+              refId: B
+              settings:
+                mode: dropNN
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 60
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - C
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: ee9k8wz2cgx612
+        panelId: 2
+        noDataState: KeepLast
+        execErrState: KeepLast
+        for: 10m
+        annotations:
+          __dashboardUid__: ee9k8wz2cgx612
+          __panelId__: "2"
+          description: CPU usage for {{ $labels.instancename }} has exceeded 60% for the last 5 minutes on installation {{ $labels.customer }}
+          summary: CPU-Usage High for {{ $labels.instancename }}
+        labels:
+          customer: abametrics
+          priority: medium
+        isPaused: false
+      - uid: bembyj07rot1dc
+        title: CPU-Usage Too High
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P951FEA4DE68E13C5
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"abametrics\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_cpu_used\")\r\n  |> group(columns: [\"instancename\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"value\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: []
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: max
+              refId: B
+              settings:
+                mode: dropNN
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 80
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - C
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: ee9k8wz2cgx612
+        panelId: 2
+        noDataState: KeepLast
+        execErrState: KeepLast
+        for: 10m
+        annotations:
+          __dashboardUid__: ee9k8wz2cgx612
+          __panelId__: "2"
+          description: CPU-Usage Too High for {{ $labels.instancename }} has exceeded 80% for the last 5 minutes on installation {{ $labels.customer }}
+          summary: CPU-Usage Too High for {{ $labels.instancename }}
+        labels:
+          customer: abametrics
+          priority: high
+        isPaused: false
+      - uid: fembyj07rot1ea
+        title: Memory-Usage High
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P951FEA4DE68E13C5
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"abametrics\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r[\"_measurement\"] == \"system_info_memory_available_bytes\" or\r\n    r[\"_measurement\"] == \"system_info_memory_total_bytes\"\r\n  )\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\", \"_measurement\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\", \"instancename\"], columnKey: [\"_measurement\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) =>\r\n    exists r.system_info_memory_total_bytes and\r\n    exists r.system_info_memory_available_bytes and\r\n    r.system_info_memory_total_bytes > 0.0\r\n  )\r\n  |> map(fn: (r) => ({\r\n      _time: r._time,\r\n      instancename: r.instancename,\r\n      _value: (r.system_info_memory_total_bytes - r.system_info_memory_available_bytes)\r\n              / float(v: r.system_info_memory_total_bytes) * 100.0\r\n    })\r\n  )\r\n  |> filter(fn: (r) =>\r\n    exists r._value and r._value > 0.0\r\n  )\r\n  |> group(columns: [\"instancename\"])\r\n  |> last()\r\n  |> yield(name: \"memory_usage_percent\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: max
+              refId: B
+              settings:
+                mode: dropNN
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 85
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: ee9k8wz2cgx612
+        panelId: 1
+        noDataState: KeepLast
+        execErrState: KeepLast
+        for: 10m
+        annotations:
+          __dashboardUid__: ee9k8wz2cgx612
+          __panelId__: "1"
+          description: Memory-Usage for {{ $labels.instancename }} has exceeded 85% for the last 5 minutes on installation {{ $labels.customer }}
+          summary: Memory-Usage High for {{ $labels.instancename }}
+        labels:
+          customer: abametrics
+          priority: medium
+        isPaused: false
+      - uid: eembyj07u6pdsa
+        title: Memory-Usage Too High
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P951FEA4DE68E13C5
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"abametrics\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r[\"_measurement\"] == \"system_info_memory_available_bytes\" or\r\n    r[\"_measurement\"] == \"system_info_memory_total_bytes\"\r\n  )\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\", \"_measurement\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\", \"instancename\"], columnKey: [\"_measurement\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) =>\r\n    exists r.system_info_memory_total_bytes and\r\n    exists r.system_info_memory_available_bytes and\r\n    r.system_info_memory_total_bytes > 0.0\r\n  )\r\n  |> map(fn: (r) => ({\r\n      _time: r._time,\r\n      instancename: r.instancename,\r\n      _value: (r.system_info_memory_total_bytes - r.system_info_memory_available_bytes)\r\n              / float(v: r.system_info_memory_total_bytes) * 100.0\r\n    })\r\n  )\r\n  |> filter(fn: (r) =>\r\n    exists r._value and r._value > 0.0\r\n  )\r\n  |> group(columns: [\"instancename\"])\r\n  |> last()\r\n  |> yield(name: \"memory_usage_percent\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: max
+              refId: B
+              settings:
+                mode: dropNN
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 95
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: ee9k8wz2cgx612
+        panelId: 1
+        noDataState: KeepLast
+        execErrState: KeepLast
+        for: 10m
+        annotations:
+          __dashboardUid__: ee9k8wz2cgx612
+          __panelId__: "1"
+          description: Memory-Usage Too High for {{ $labels.instancename }} has exceeded 85% for the last 5 minutes on installation {{ $labels.customer }}
+          summary: Memory-Usage Too High for {{ $labels.instancename }}
+        labels:
+          customer: abametrics
+          priority: high
+        isPaused: false
+      - uid: bembyj07u6pdtc
+        title: Disk-Space getting low
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P951FEA4DE68E13C5
+            model:
+              intervalMs: 1000
+              maxDataPoints: 43200
+              query: "from(bucket: \"abametrics\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r[\"_measurement\"] == \"disk_free_bytes\" or\r\n    r[\"_measurement\"] == \"disk_total_bytes\"\r\n  )\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\", \"_measurement\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\", \"instancename\"], columnKey: [\"_measurement\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) =>\r\n    exists r.disk_total_bytes and\r\n    exists r.disk_free_bytes and\r\n    r.disk_total_bytes > 0.0\r\n  )\r\n  |> map(fn: (r) => ({\r\n      _time: r._time,\r\n      instancename: r.instancename,\r\n      _value: (r.disk_total_bytes - r.disk_free_bytes)\r\n              / float(v: r.disk_total_bytes) * 100.0\r\n    })\r\n  )\r\n  |> filter(fn: (r) =>\r\n    exists r._value and r._value > 0.0\r\n  )\r\n  |> group(columns: [\"instancename\"])\r\n  |> last()\r\n  |> yield(name: \"memory_usage_percent\")"
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: max
+              refId: B
+              settings:
+                mode: dropNN
+              type: reduce
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 85
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: []
+                  reducer:
+                    params: []
+                    type: avg
+                  type: query
+              datasource:
+                name: Expression
+                type: __expr__
+                uid: __expr__
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: ee9k8wz2cgx612
+        panelId: 1
+        noDataState: KeepLast
+        execErrState: KeepLast
+        for: 10m
+        annotations:
+          __dashboardUid__: ee9k8wz2cgx612
+          __panelId__: "1"
+          description: Disk-Space getting low for {{ $labels.instancename }} has exceeded 85% for the last 5 minutes on installation {{ $labels.customer }}
+          summary: Disk-Space getting low for {{ $labels.instancename }}
+        labels:
+          customer: abametrics
+          priority: medium
+        isPaused: false
