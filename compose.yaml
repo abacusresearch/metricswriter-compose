@@ -10,8 +10,8 @@ services:
       DOCKER_INFLUXDB_INIT_ORG: abacus
       DOCKER_INFLUXDB_INIT_BUCKET: abametrics
     volumes:
-      - influxdb2_data:/var/lib/influxdb2"
-      - influxdb2_config:/etc/influxdb2"
+      - influxdb2_data:/var/lib/influxdb2
+      - influxdb2_config:/etc/influxdb2
     ports:
       - 8086:8086
     networks:
@@ -26,7 +26,7 @@ services:
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       GF_ANALYTICS_FEEDBACK_LINKS_ENABLED: "false"
     volumes:
-      - grafana_data:/var/lib/grafana"
+      - grafana_data:/var/lib/grafana
       - ./grafana/dashboard-templates:/etc/dashboard-templates
       - ./grafana/provisioning:/etc/grafana/provisioning
     ports:
