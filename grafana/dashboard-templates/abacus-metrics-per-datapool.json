@@ -18,7 +18,7 @@
   "description": "Zeigt die Abacus Metrics für alle Abacus-Server in einem Bucket",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "panels": [
@@ -38,7 +38,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "All CPUs",
       "fieldConfig": {
@@ -73,6 +73,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -101,7 +102,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -154,14 +156,14 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_cpu_used\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"value\")",
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_cpu_used\")\r\n  |> filter(fn: (r) => r.environment =~ /${environment:regex}/)\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"value\")",
           "refId": "A"
         }
       ],
@@ -171,7 +173,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "Total:  \nAmount of physical memory.\n\nUsed:  \nAmount of physical memory currently used.",
       "fieldConfig": {
@@ -206,6 +208,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -233,7 +236,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -286,15 +290,15 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": false,
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_memory_available_bytes\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_memory_available_bytes\")\r\n  |> filter(fn: (r) => r.environment =~ /${environment:regex}/)\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "B"
         }
       ],
@@ -304,7 +308,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "",
       "fieldConfig": {
@@ -339,6 +343,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -366,7 +371,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -419,15 +425,15 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": false,
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_free_bytes\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_free_bytes\")\r\n  |> filter(fn: (r) => r.environment =~ /${environment:regex}/)\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "B"
         }
       ],
@@ -437,7 +443,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "The rate at which bytes are sent and received over each network adapter, including framing characters. Network Interface\\Bytes Total/sec is a sum of Network Interface\\Bytes Received/sec and Network Interface\\Bytes Sent/sec.",
       "fieldConfig": {
@@ -472,6 +478,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -499,7 +506,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -552,14 +560,14 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"windows_default_pdh_network_interface_bytes_total_sec\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"windows_default_pdh_network_interface_bytes_total_sec\")\r\n  |> filter(fn: (r) => r.environment =~ /${environment:regex}/)\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -567,7 +575,7 @@
       "type": "timeseries"
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -575,953 +583,970 @@
         "y": 18
       },
       "id": 67,
-      "panels": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 1,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 0,
+              "fieldMinMax": true,
+              "links": [
+                {
+                  "targetBlank": false,
+                  "title": "Schnellübersicht",
+                  "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                },
+                {
+                  "title": "Details",
+                  "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                }
+              ],
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byFrameRefID",
+                  "options": "A"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__series.name}"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 19
+          },
+          "id": 68,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ulc_session_active\" or r[\"_measurement\"] == \"abacus_vaadin_ui_active\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum_per_instance\")",
+              "refId": "A"
+            }
+          ],
+          "title": "Abacus - Sessions (ULC + Web)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 1,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 0,
+              "fieldMinMax": true,
+              "links": [
+                {
+                  "targetBlank": false,
+                  "title": "Schnellübersicht",
+                  "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                },
+                {
+                  "title": "Details",
+                  "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                }
+              ],
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^.*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__series.name}"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 19
+          },
+          "id": 69,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_tables_count\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum_tables_per_instance\")",
+              "refId": "A"
+            }
+          ],
+          "title": "Abacus - Open Tables",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 1,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "fieldMinMax": true,
+              "links": [
+                {
+                  "targetBlank": false,
+                  "title": "Schnellübersicht",
+                  "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                },
+                {
+                  "title": "Details",
+                  "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                }
+              ],
+              "mappings": [],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percentunit"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^.*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__series.name}"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 27
+          },
+          "id": 42,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"process_cpu_usage\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> group(columns: [\"instancename\"]) \r\n  |> aggregateWindow(every: v.windowPeriod, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum_process_cpu_usage\")",
+              "refId": "A"
+            }
+          ],
+          "title": "JVM - CPU Usage",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 1,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 1,
+              "fieldMinMax": true,
+              "links": [
+                {
+                  "title": "Schnellübersicht",
+                  "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                },
+                {
+                  "title": "Details",
+                  "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                }
+              ],
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^.*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__series.name}"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 27
+          },
+          "id": 43,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_memory_used_bytes\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\r\n  |> keep(columns: [\"_time\", \"_value\",\"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false) \r\n  |> yield(name: \"sum\")",
+              "refId": "A"
+            }
+          ],
+          "title": "JVM - Memory Used",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 1,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 1,
+              "fieldMinMax": true,
+              "links": [
+                {
+                  "title": "Schnellübersicht",
+                  "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                },
+                {
+                  "title": "Details",
+                  "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                }
+              ],
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^.*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__series.name}"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 35
+          },
+          "id": 84,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"process_files_open_files\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\r\n  |> keep(columns: [\"_time\", \"_value\",\"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 15s, fn: sum, createEmpty: false) \r\n  |> yield(name: \"sum\")",
+              "refId": "A"
+            }
+          ],
+          "title": "JVM - Handles",
+          "type": "timeseries"
+        }
+      ],
       "title": "Abacus",
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 1,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "fieldMinMax": true,
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Schnellübersicht",
-              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            },
-            {
-              "title": "Details",
-              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            }
-          ],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "A"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__series.name}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 19
-      },
-      "id": 68,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ulc_session_active\" or r[\"_measurement\"] == \"abacus_vaadin_ui_active\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum_per_instance\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Abacus - Sessions (ULC + Web)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 1,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "fieldMinMax": true,
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Schnellübersicht",
-              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            },
-            {
-              "title": "Details",
-              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            }
-          ],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^.*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__series.name}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 19
-      },
-      "id": 69,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_tables_count\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum_tables_per_instance\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Abacus - Open Tables",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 1,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "fieldMinMax": true,
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Schnellübersicht",
-              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            },
-            {
-              "title": "Details",
-              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            }
-          ],
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^.*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__series.name}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 27
-      },
-      "id": 42,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"process_cpu_usage\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> group(columns: [\"instancename\"]) \r\n  |> aggregateWindow(every: v.windowPeriod, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum_process_cpu_usage\")",
-          "refId": "A"
-        }
-      ],
-      "title": "JVM - CPU Usage",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 1,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 1,
-          "fieldMinMax": true,
-          "links": [
-            {
-              "title": "Schnellübersicht",
-              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            },
-            {
-              "title": "Details",
-              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            }
-          ],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^.*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__series.name}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 27
-      },
-      "id": 43,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_memory_used_bytes\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\r\n  |> keep(columns: [\"_time\", \"_value\",\"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false) \r\n  |> yield(name: \"sum\")",
-          "refId": "A"
-        }
-      ],
-      "title": "JVM - Memory Used",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 1,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 1,
-          "fieldMinMax": true,
-          "links": [
-            {
-              "title": "Schnellübersicht",
-              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            },
-            {
-              "title": "Details",
-              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            }
-          ],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^.*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__series.name}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 35
-      },
-      "id": 84,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"process_files_open_files\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\r\n  |> keep(columns: [\"_time\", \"_value\",\"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 15s, fn: sum, createEmpty: false) \r\n  |> yield(name: \"sum\")",
-          "refId": "A"
-        }
-      ],
-      "title": "JVM - Handles",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 19
       },
       "id": 83,
-      "panels": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 1,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 1,
+              "fieldMinMax": true,
+              "links": [
+                {
+                  "title": "Schnellübersicht",
+                  "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                },
+                {
+                  "title": "Details",
+                  "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                }
+              ],
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/.*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__series.name}"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 20
+          },
+          "id": 75,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "hide": false,
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ctree_operations_total\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> derivative(unit: 1m, nonNegative: true)\r\n  |> keep(columns: [\"_time\", \"_value\",\"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"rate_abacus_ctree_operations_total\")",
+              "refId": "A"
+            }
+          ],
+          "title": "CTree - Table Operation Rate [1min]",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 1,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 0,
+              "fieldMinMax": true,
+              "links": [
+                {
+                  "targetBlank": false,
+                  "title": "Schnellübersicht",
+                  "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                },
+                {
+                  "title": "Details",
+                  "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
+                }
+              ],
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/.*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__series.name}"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 20
+          },
+          "id": 82,
+          "options": {
+            "legend": {
+              "calcs": [
+                "min",
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ctree_sessions\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+              "refId": "A"
+            }
+          ],
+          "title": "CTree - Sessions",
+          "type": "timeseries"
+        }
+      ],
       "title": "Datenbank",
       "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 1,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 1,
-          "fieldMinMax": true,
-          "links": [
-            {
-              "title": "Schnellübersicht",
-              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            },
-            {
-              "title": "Details",
-              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            }
-          ],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__series.name}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 44
-      },
-      "id": 75,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "hide": false,
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ctree_operations_total\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> derivative(unit: 1m, nonNegative: true)\r\n  |> keep(columns: [\"_time\", \"_value\",\"instancename\"])\r\n  |> group(columns: [\"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"rate_abacus_ctree_operations_total\")",
-          "refId": "A"
-        }
-      ],
-      "title": "CTree - Table Operation Rate [1min]",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 1,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "fieldMinMax": true,
-          "links": [
-            {
-              "targetBlank": false,
-              "title": "Schnellübersicht",
-              "url": "/d/ceiys39uku1o23/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            },
-            {
-              "title": "Details",
-              "url": "/d/ee9k8wz2cgx612/abacus-metric-pro-instanz?orgId=${__org.id}&timezone=browser&${bucket:queryparam}&var-instancename=${__series.name}&var-service=$__all&from=now-3h&to=now&refresh=30s"
-            }
-          ],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__series.name}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 44
-      },
-      "id": 82,
-      "options": {
-        "legend": {
-          "calcs": [
-            "min",
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ctree_sessions\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"instancename\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\r\n  |> yield(name: \"mean\")",
-          "refId": "A"
-        }
-      ],
-      "title": "CTree - Sessions",
-      "type": "timeseries"
     }
   ],
-  "schemaVersion": 41,
+  "preload": false,
+  "schemaVersion": 42,
   "tags": [
     "1.0.0"
   ],
@@ -1529,6 +1554,10 @@
     "list": [
       {
         "current": {},
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
         "definition": "buckets()",
         "description": "",
         "label": "Kunde",
@@ -1536,13 +1565,45 @@
         "options": [],
         "query": {
           "maxDataPoints": 1000,
-          "query": "buckets()",
-          "refId": "InfluxVariableQueryEditor-VariableQuery"
+          "query": "buckets()"
         },
         "refresh": 1,
         "regex": "/^[^_].*/",
         "sort": 1,
         "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {},
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
+        "definition": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> group(columns: [\"environment\"])\r\n  |> distinct(column: \"environment\")\r\n  |> keep(columns: [\"_value\"])\r\n",
+        "includeAll": true,
+        "label": "Umgebung",
+        "name": "environment",
+        "options": [],
+        "query": {
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> group(columns: [\"environment\"])\r\n  |> distinct(column: \"environment\")\r\n  |> keep(columns: [\"_value\"])\r\n"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {},
+        "description": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Data source",
+        "name": "DS",
+        "options": [],
+        "query": "influxdb",
+        "refresh": 1,
+        "regex": "/^[Ii]nflux[Dd][Bb].*$/",
+        "type": "datasource"
       }
     ]
   },
@@ -1561,6 +1622,6 @@
   "timezone": "browser",
   "title": "Abacus Metric pro Datenpool",
   "uid": "eea5s47saopa12",
-  "version": 1,
+  "version": 16,
   "weekStart": "monday"
 }

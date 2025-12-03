@@ -8,17 +8,41 @@
           "uid": "-- Grafana --"
         },
         "enable": true,
-        "hide": true,
+        "hide": false,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "dark-red",
+        "mappings": {},
+        "name": "Abacus Version",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "query": "import \"experimental/json\"\nimport \"date\"\nfrom(bucket: \"${bucket}\")\n  |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus\")\n  |> map(fn: (r) => ({\n    _time: r._time,\n    _measurement: r._measurement,\n    _value: json.parse(data: bytes(v: r.abacus_informations)).abacus_installed_patch,\n    text: \"Abacus installed version patch: \" + json.parse(data: bytes(v: r.abacus_informations)).abacus_installed_patch\n  }))\n  |> sort(columns: [\"_time\"])\n  |> unique()",
+          "tags": [],
+          "type": "dashboard"
+        }
       }
     ]
   },
   "description": "Zeigt die Abacus Metrics für einen einzelnen Abacus-Server.",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "panels": [
@@ -38,7 +62,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "All CPUs",
       "fieldConfig": {
@@ -73,6 +97,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -84,13 +109,13 @@
           },
           "fieldMinMax": true,
           "mappings": [],
-          "max": 100,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -103,13 +128,56 @@
         "overrides": [
           {
             "matcher": {
-              "id": "byRegexp",
-              "options": "/.*/"
+              "id": "byName",
+              "options": "Value"
             },
             "properties": [
               {
                 "id": "displayName",
                 "value": "All CPUs"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trendline 120"
+            },
+            "properties": [
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "All CPUs"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": true,
+                  "viz": true
+                }
               }
             ]
           }
@@ -128,9 +196,9 @@
             "mean",
             "last"
           ],
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
         "timezone": [
           "browser"
@@ -141,24 +209,52 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_cpu_used\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"value\")",
           "refId": "A"
         }
       ],
       "title": "System - CPU",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Trendline 120",
+            "cumulative": {
+              "field": "Trendline 40",
+              "reducer": "mean"
+            },
+            "index": {
+              "asPercentile": false
+            },
+            "mode": "windowFunctions",
+            "reduce": {
+              "include": [],
+              "reducer": "range"
+            },
+            "replaceFields": false,
+            "window": {
+              "field": "Value",
+              "reducer": "mean",
+              "windowAlignment": "trailing",
+              "windowSize": 120,
+              "windowSizeMode": "fixed"
+            }
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "",
       "fieldConfig": {
@@ -193,6 +289,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -209,7 +306,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -262,12 +360,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": false,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_process_kernel_time_total\" or r[\"_measurement\"] == \"system_info_process_user_time_total\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> derivative(unit: 1m, nonNegative: true)\r\n  |> group(columns: [\"name\", \"pid\"])\r\n  |> keep(columns: [\"_time\", \"_value\",\"name\", \"pid\"])\r\n  |> aggregateWindow(every: 1m, fn: sum, createEmpty: false)\r\n  |> yield(name: \"rate_user_time\")",
@@ -280,7 +378,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "Total:  \nAmount of physical memory.\n\nUsed:  \nAmount of physical memory currently used.",
       "fieldConfig": {
@@ -315,6 +413,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -331,7 +430,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -393,12 +493,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_memory_total_bytes\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -406,7 +506,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": true,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_memory_available_bytes\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
@@ -430,7 +530,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "Total:  \nThe current size of the paging/swap file(s). If the paging/swap file can be extended, this is a soft limit.\n\nUsed:  \nThe current memory committed to the paging/swap file(s).\n\nFor more information see:  \nhttps://en.wikipedia.org/wiki/Memory_paging#Implementations",
       "fieldConfig": {
@@ -465,6 +565,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -481,7 +582,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -544,12 +646,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_swap_total_bytes\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -557,7 +659,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": false,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_swap_used_bytes\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"used\")",
@@ -570,7 +672,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "In:  \nNumber of pages read from paging/swap file(s) to resolve hard page faults. (Hard page faults occur when a process requires code or data that is not in its working set or elsewhere in physical memory, and must be retrieved from disk.) This property was designed as a primary indicator of the kinds of faults that cause system-wide delays. It includes pages retrieved to satisfy faults in the file system cache (usually requested by applications) and in non-cached mapped memory files.\n\nOut:  \nNumber of pages written to paging/swap file(s) to free up space in physical memory. Pages are written back to disk only if they are changed in physical memory, so they are likely to hold data, not code. A high rate of pages output might indicate a memory shortage. The operating system writes more pages back to disk to free up space when physical memory is in short supply.",
       "fieldConfig": {
@@ -605,6 +707,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -621,7 +724,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -681,12 +785,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_swap_pages_total\")\r\n  |> filter(fn: (r) => r[\"type\"] == \"In\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> derivative(unit: 1s, nonNegative: true)\r\n  |> aggregateWindow(every: 45s, fn: mean, createEmpty: false)\r\n  |> yield(name: \"rate\")",
           "refId": "A"
@@ -694,7 +798,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": false,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"system_info_swap_pages_total\")\r\n  |> filter(fn: (r) => r[\"type\"] == \"Out\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> derivative(unit: 1s, nonNegative: true)\r\n  |> aggregateWindow(every: 45s, fn: mean, createEmpty: false)\r\n  |> yield(name: \"rate\")",
@@ -707,7 +811,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "The rate at which bytes are sent and received over each network adapter, including framing characters. Network Interface\\Bytes Total/sec is a sum of Network Interface\\Bytes Received/sec and Network Interface\\Bytes Sent/sec.",
       "fieldConfig": {
@@ -742,6 +846,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -753,12 +858,12 @@
           },
           "fieldMinMax": true,
           "mappings": [],
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -835,33 +940,63 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
+          "hide": true,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"windows_default_pdh_network_interface_bytes_total_sec\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"item\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
         },
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
-          "hide": false,
+          "hide": true,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"windows_default_pdh_network_interface_bytes_received_sec\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"item\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "B"
         },
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
-          "hide": false,
+          "hide": true,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"windows_default_pdh_network_interface_bytes_sent_sec\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"item\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "hide": false,
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"windows_default_pdh_network_interface_bytes_received_sec\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"item\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "refId": "received"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "hide": true,
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"windows_default_pdh_network_interface_bytes_sent_sec\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"item\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+          "refId": "sent_positive"
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "-${sent_positive}",
+          "hide": false,
+          "refId": "sent",
+          "type": "math"
         }
       ],
       "title": "System - Network (Bytes/Second)",
@@ -870,7 +1005,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "",
       "fieldConfig": {
@@ -905,6 +1040,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -921,7 +1057,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -981,12 +1118,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -994,7 +1131,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": true,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_free_bytes\")\r\n  |> keep(columns: [\"_time\", \"_value\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
@@ -1030,7 +1167,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "",
       "fieldConfig": {
@@ -1047,7 +1184,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 5,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -1065,6 +1202,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1083,7 +1221,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -1134,12 +1273,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"process_cpu_usage\")\r\n  |> keep(columns: [\"_time\", \"_value\",\"job\"])\r\n  |> group(columns: [\"job\"]) \r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -1151,7 +1290,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "An approximation of the percent of CPU time used by GC activities over the last lookback period or since monitoring began, whichever is shorter.",
       "fieldConfig": {
@@ -1186,6 +1325,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1204,7 +1344,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -1255,12 +1396,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": false,
           "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_gc_overhead_percent\")\r\n  |> group(columns: [\"job\", \"_field\", \"action\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
@@ -1273,7 +1414,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "",
       "fieldConfig": {
@@ -1308,6 +1449,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1325,7 +1467,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "red",
@@ -1391,16 +1534,17 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.0",
+      "pluginVersion": "12.2.1",
       "repeat": "service",
       "repeatDirection": "h",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_memory_used_bytes\" or r[\"_measurement\"] == \"jvm_memory_max_bytes\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> filter(fn: (r) => r[\"area\"] == \"heap\")\r\n  |> filter(fn: (r) => r[\"job\"] == \"${service}\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"_measurement\", \"job\", \"area\"])\r\n  |> group(columns: [\"job\", \"area\", \"_measurement\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: sum, createEmpty: false)  // Aggregiert in Zeitfenstern\r\n  |> yield(name: \"sum\")",
+          "hide": false,
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r.instancename == \"${instancename}\" and\r\n    r.job == \"${service}\" and\r\n    r.area == \"heap\" and\r\n    (\r\n      r._measurement == \"jvm_memory_max_bytes\" or\r\n      r._measurement == \"jvm_memory_committed_bytes\" or\r\n      r._measurement == \"jvm_memory_used_bytes\"\r\n    ) and\r\n    (\r\n      r.id == \"G1 Eden Space\" or\r\n      r.id == \"G1 Old Gen\" or\r\n      r.id == \"G1 Survivor Space\"\r\n    )\r\n  )\r\n  |> aggregateWindow(every: ${aggregationInterval}, fn: last, createEmpty: false)\r\n  |> pivot(rowKey: [\"_time\", \"_measurement\"], columnKey: [\"id\"], valueColumn: \"_value\")\r\n  |> filter(fn: (r) =>\r\n  exists r[\"G1 Eden Space\"] and exists r[\"G1 Old Gen\"] and exists r[\"G1 Survivor Space\"]\r\n)\r\n|> map(fn: (r) => ({\r\n  _time: r._time,\r\n  _measurement: r._measurement,\r\n  _value: r[\"G1 Eden Space\"] + r[\"G1 Old Gen\"] + r[\"G1 Survivor Space\"]\r\n}))\r\n|> aggregateWindow(every: ${aggregationInterval}, fn: mean, createEmpty: false)\r\n|> yield(name: \"heap_totals_smoothed\")",
           "refId": "A"
         }
       ],
@@ -1408,7 +1552,7 @@
       "type": "timeseries"
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1416,677 +1560,690 @@
         "y": 42
       },
       "id": 101,
-      "panels": [],
-      "title": "Abacus - Open Tables, Handel, Sessions und CTree.",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
           },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "fieldMinMax": true,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
               },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^.*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__field.labels.job} - ${__field.labels.type}"
-              }
-            ]
-          },
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "AbaApplicationServer - physical"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": {
                   "legend": false,
                   "tooltip": false,
-                  "viz": true
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
                 }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 43
-      },
-      "id": 69,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_tables_count\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> keep(columns: [\"_time\", \"_value\", \"job\", \"type\"])\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Abacus - Open Tables",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "The open handles count (eg: file handles).\n\nOn Windows platform this is GetProcessHandleCount (https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocesshandlecount).\n\nOn Non-Windows this is determined via /proc/self/fd.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+              },
+              "decimals": 0,
+              "fieldMinMax": true,
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "fieldMinMax": true,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
+            "overrides": [
               {
-                "color": "green"
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^.*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__field.labels.job} - ${__field.labels.type}"
+                  }
+                ]
               },
               {
-                "color": "red",
-                "value": 80
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "AbaApplicationServer - physical"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": true,
+                      "viz": true
+                    }
+                  }
+                ]
               }
             ]
           },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "A"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__field.labels.job}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 43
-      },
-      "id": 66,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+          "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 0,
+            "y": 91
           },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"process_files_open_files\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"job\", \"type\"])\r\n  |> aggregateWindow(every: 15s, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum_of_jvm_memory_used_bytes\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Handles",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+          "id": 69,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
             }
           },
-          "decimals": 0,
-          "fieldMinMax": true,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
               },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "A"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "ULC - ${__field.labels.job}"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "B"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Vaadin - ${__field.labels.job}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 52
-      },
-      "id": 68,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_tables_count\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> keep(columns: [\"_time\", \"_value\", \"job\", \"type\"])\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+              "refId": "A"
+            }
           ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
-        },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ulc_session_active\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"job\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
-          "refId": "A"
+          "title": "Abacus - Open Tables",
+          "type": "timeseries"
         },
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
-          "hide": false,
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_vaadin_ui_active\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"job\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"used\")",
-          "refId": "B"
-        }
-      ],
-      "title": "Abacus - Active Sessions",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
+          "description": "The open handles count (eg: file handles).\n\nOn Windows platform this is GetProcessHandleCount (https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getprocesshandlecount).\n\nOn Non-Windows this is determined via /proc/self/fd.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "fieldMinMax": true,
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byFrameRefID",
+                  "options": "A"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__field.labels.job}"
+                  }
+                ]
+              }
+            ]
           },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+          "gridPos": {
+            "h": 9,
+            "w": 12,
+            "x": 12,
+            "y": 91
+          },
+          "id": 66,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
             }
           },
-          "decimals": 0,
-          "fieldMinMax": true,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
               },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/abacus_ctree_sessions_max*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Peak"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/abacus_ctree_sessions*/"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Current"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 52
-      },
-      "id": 82,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"process_files_open_files\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"job\", \"type\"])\r\n  |> aggregateWindow(every: 15s, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum_of_jvm_memory_used_bytes\")",
+              "refId": "A"
+            }
           ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
+          "title": "Handles",
+          "type": "timeseries"
         },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.1",
-      "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ctree_sessions\" or r[\"_measurement\"] == \"abacus_ctree_sessions_max\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"_measurement\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
-          "refId": "A"
-        }
-      ],
-      "title": "CTree - Sessions",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 0,
+              "fieldMinMax": true,
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byFrameRefID",
+                  "options": "A"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "ULC - ${__field.labels.job}"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byFrameRefID",
+                  "options": "B"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Vaadin - ${__field.labels.job}"
+                  }
+                ]
+              }
+            ]
           },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 100
+          },
+          "id": 68,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
             }
           },
-          "decimals": 1,
-          "fieldMinMax": true,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
               },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*/"
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ulc_session_active\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"job\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+              "refId": "A"
             },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "${__field.labels.op}"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 60
-      },
-      "id": 75,
-      "options": {
-        "legend": {
-          "calcs": [
-            "max",
-            "last"
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "hide": false,
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_vaadin_ui_active\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"job\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"used\")",
+              "refId": "B"
+            }
           ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Max",
-          "sortDesc": true
+          "title": "Abacus - Active Sessions",
+          "type": "timeseries"
         },
-        "timezone": [
-          "browser"
-        ],
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.1",
-      "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
-          "hide": false,
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ctree_operations_total\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> derivative(unit: 1m, nonNegative: true)\r\n  |> group(columns: [\"op\"])\r\n  |> keep(columns: [\"_time\", \"_value\",\"op\"])\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"rate_abacus_ctree_operations_total\")",
-          "refId": "A"
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 0,
+              "fieldMinMax": true,
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/abacus_ctree_sessions_max*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Peak"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/abacus_ctree_sessions*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Current"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 100
+          },
+          "id": 82,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ctree_sessions\" or r[\"_measurement\"] == \"abacus_ctree_sessions_max\")\r\n  |> keep(columns: [\"_time\", \"_value\", \"_measurement\"])\r\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\r\n  |> yield(name: \"mean\")",
+              "refId": "A"
+            }
+          ],
+          "title": "CTree - Sessions",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS}"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 1,
+              "fieldMinMax": true,
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/.*/"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "${__field.labels.op}"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 108
+          },
+          "id": 75,
+          "options": {
+            "legend": {
+              "calcs": [
+                "max",
+                "last"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
+            },
+            "timezone": [
+              "browser"
+            ],
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS}"
+              },
+              "hide": false,
+              "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus_ctree_operations_total\")\r\n  |> filter(fn: (r) => r[\"_value\"] != 0) \r\n  |> derivative(unit: 1m, nonNegative: true)\r\n  |> group(columns: [\"op\"])\r\n  |> keep(columns: [\"_time\", \"_value\",\"op\"])\r\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)\r\n  |> yield(name: \"rate_abacus_ctree_operations_total\")",
+              "refId": "A"
+            }
+          ],
+          "title": "CTree - Table Operation Rate [1min]",
+          "type": "timeseries"
         }
       ],
-      "title": "CTree - Table Operation Rate [1min]",
-      "type": "timeseries"
+      "title": "Abacus - Open Tables, Handel, Sessions und CTree.",
+      "type": "row"
     }
   ],
-  "schemaVersion": 41,
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 42,
   "tags": [
     "1.0.0"
   ],
@@ -2094,6 +2251,10 @@
     "list": [
       {
         "current": {},
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
         "definition": "buckets()",
         "description": "",
         "label": "Kunde",
@@ -2101,8 +2262,7 @@
         "options": [],
         "query": {
           "maxDataPoints": 1000,
-          "query": "buckets()",
-          "refId": "InfluxVariableQueryEditor-VariableQuery"
+          "query": "buckets()"
         },
         "refresh": 1,
         "regex": "/^[^_].*/",
@@ -2111,6 +2271,10 @@
       },
       {
         "current": {},
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
         "definition": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> group(columns: [\"instancename\"])\r\n  |> distinct(column: \"instancename\")\r\n  |> keep(columns: [\"_value\"])\r\n",
         "description": "",
         "label": "Instanz",
@@ -2118,8 +2282,7 @@
         "options": [],
         "query": {
           "maxDataPoints": 1000,
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> group(columns: [\"instancename\"])\r\n  |> distinct(column: \"instancename\")\r\n  |> keep(columns: [\"_value\"])\r\n",
-          "refId": "InfluxVariableQueryEditor-VariableQuery"
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> group(columns: [\"instancename\"])\r\n  |> distinct(column: \"instancename\")\r\n  |> keep(columns: [\"_value\"])\r\n"
         },
         "refresh": 2,
         "regex": "",
@@ -2128,6 +2291,10 @@
       {
         "allValue": "Alle",
         "current": {},
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
         "definition": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_memory_used_bytes\")\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"job\"] != \"AbaMetricsService\" and r[\"job\"] != \"AbaMonitorService\" and r[\"job\"] != \"AbaAuditServer\")\r\n  |> group(columns: [\"job\"])\r\n  |> distinct(column: \"job\")\r\n  |> keep(columns: [\"_value\"])",
         "hide": 2,
         "includeAll": true,
@@ -2136,17 +2303,57 @@
         "options": [],
         "query": {
           "maxDataPoints": 1000,
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_memory_used_bytes\")\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"job\"] != \"AbaMetricsService\" and r[\"job\"] != \"AbaMonitorService\" and r[\"job\"] != \"AbaAuditServer\")\r\n  |> group(columns: [\"job\"])\r\n  |> distinct(column: \"job\")\r\n  |> keep(columns: [\"_value\"])",
-          "refId": "InfluxVariableQueryEditor-VariableQuery"
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"jvm_memory_used_bytes\")\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"job\"] != \"AbaMetricsService\" and r[\"job\"] != \"AbaMonitorService\" and r[\"job\"] != \"AbaAuditServer\")\r\n  |> group(columns: [\"job\"])\r\n  |> distinct(column: \"job\")\r\n  |> keep(columns: [\"_value\"])"
         },
         "refresh": 1,
         "regex": "",
         "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {},
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
+        "definition": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus\")\r\n  |> sort(columns: [\"_time\"], desc: true)\r\n  |> limit(n: 1)\r\n  |> keep(columns: [\"aggregationInterval\"])\r\n  |> map(fn: (r) => {\r\n      duration_ms = int(v: r.aggregationInterval)\r\n      window = if duration_ms % 60000 == 0 then\r\n          string(v: duration_ms / 60000) + \"m\"\r\n      else\r\n          string(v: duration_ms / 1000) + \"s\"\r\n      return { window_interval: window, _value: duration_ms }\r\n  })\r\n  |> keep(columns: [\"window_interval\"])\r\n  |> yield(name: \"window_interval\")",
+        "hide": 2,
+        "includeAll": false,
+        "label": "aggregationInterval",
+        "name": "aggregationInterval",
+        "options": [],
+        "query": {
+          "maxDataPoints": 1,
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"instancename\"] == \"${instancename}\")\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"abacus\")\r\n  |> sort(columns: [\"_time\"], desc: true)\r\n  |> limit(n: 1)\r\n  |> keep(columns: [\"aggregationInterval\"])\r\n  |> map(fn: (r) => {\r\n      duration_ms = int(v: r.aggregationInterval)\r\n      window = if duration_ms % 60000 == 0 then\r\n          string(v: duration_ms / 60000) + \"m\"\r\n      else\r\n          string(v: duration_ms / 1000) + \"s\"\r\n      return { window_interval: window, _value: duration_ms }\r\n  })\r\n  |> keep(columns: [\"window_interval\"])\r\n  |> yield(name: \"window_interval\")"
+        },
+        "refresh": 1,
+        "regex": "",
+        "staticOptions": [
+          {
+            "text": "5m",
+            "value": "5m"
+          }
+        ],
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {},
+        "description": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Data source",
+        "name": "DS",
+        "options": [],
+        "query": "influxdb",
+        "refresh": 1,
+        "regex": "/^[Ii]nflux[Dd][Bb].*$/",
+        "type": "datasource"
       }
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -2160,6 +2367,6 @@
   "timezone": "browser",
   "title": "Abacus Metric pro Instanz - Schnellübersicht",
   "uid": "ceiys39uku1o23",
-  "version": 1,
+  "version": 27,
   "weekStart": "monday"
 }

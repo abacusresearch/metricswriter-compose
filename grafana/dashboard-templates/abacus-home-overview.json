@@ -25,7 +25,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
+        "uid": "${DS}"
       },
       "description": "Zeigt alle erfassten Abacus-Installationen eines Datenpools.",
       "fieldConfig": {
@@ -36,11 +36,14 @@
           "custom": {
             "align": "auto",
             "cellOptions": {
-              "type": "auto",
-              "wrapText": false
+              "type": "auto"
             },
             "filterable": true,
-            "inspect": false
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false,
+            "wrapText": false
           },
           "links": [
             {
@@ -61,7 +64,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               }
             ]
           }
@@ -201,7 +205,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "#73bf6980"
+                      "color": "#73bf6980",
+                      "value": 0
                     },
                     {
                       "color": "#ff983080",
@@ -219,9 +224,12 @@
                 "value": {
                   "applyToRow": false,
                   "mode": "gradient",
-                  "type": "color-background",
-                  "wrapText": false
+                  "type": "color-background"
                 }
+              },
+              {
+                "id": "custom.wrapText",
+                "value": false
               }
             ]
           },
@@ -237,7 +245,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "#f2495c80"
+                      "color": "#f2495c80",
+                      "value": 0
                     },
                     {
                       "color": "#ff983080",
@@ -270,7 +279,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "#f2495c80"
+                      "color": "#f2495c80",
+                      "value": 0
                     },
                     {
                       "color": "#ff983080",
@@ -288,9 +298,54 @@
                 "value": {
                   "applyToRow": false,
                   "mode": "gradient",
-                  "type": "color-background",
-                  "wrapText": false
+                  "type": "color-background"
                 }
+              },
+              {
+                "id": "custom.wrapText",
+                "value": false
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Silent Hotfix verfügbar"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "false": {
+                        "index": 0,
+                        "text": "Nein"
+                      },
+                      "true": {
+                        "index": 1,
+                        "text": "Ja"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 209
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Aktiv Sessions"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 169
               }
             ]
           }
@@ -305,28 +360,20 @@
       "id": 3,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "enablePagination": true,
-          "fields": [],
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
+        "enablePagination": true,
         "frameIndex": 1,
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "11.6.2",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
+            "uid": "${DS}"
           },
           "hide": false,
-          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: -2h, stop: now())\r\n  |> filter(fn: (r) => \r\n    r[\"_measurement\"] == \"system_cpu_count\" or\r\n    r[\"_measurement\"] == \"system_cpu_usage\" or\r\n    r[\"_measurement\"] == \"system_info_memory_total_bytes\" or\r\n    r[\"_measurement\"] == \"system_info_memory_available_bytes\" or\r\n    r[\"_measurement\"] == \"disk_free_bytes\" or\r\n    r[\"_measurement\"] == \"abacus_vaadin_ui_active\" or\r\n    r[\"_measurement\"] == \"abacus_ulc_session_active\" or\r\n    r[\"_measurement\"] == \"abacus\"\r\n  )\r\n  |> group(columns: [\"instancename\", \"_measurement\"])  // Nur nach instancename & measurement gruppieren\r\n  |> last()                                    // Holt den letzten Wert je Gruppe\r\n  |> keep(columns: [\"_time\", \"_value\", \"_measurement\", \"instancename\", \"abacus_informations\"])\r\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: -2h, stop: now())\r\n  |> filter(fn: (r) => \r\n    r[\"_measurement\"] == \"system_cpu_count\" or\r\n    r[\"_measurement\"] == \"system_cpu_usage\" or\r\n    r[\"_measurement\"] == \"system_info_memory_total_bytes\" or\r\n    r[\"_measurement\"] == \"system_info_memory_available_bytes\" or\r\n    r[\"_measurement\"] == \"disk_free_bytes\" or\r\n    r[\"_measurement\"] == \"abacus_vaadin_ui_active\" or\r\n    r[\"_measurement\"] == \"abacus_ulc_session_active\" or\r\n    r[\"_measurement\"] == \"abacus\"\r\n  )\r\n  |> filter(fn: (r) => r.environment =~ /${environment:regex}/)\r\n  |> group(columns: [\"instancename\", \"_measurement\"])  // Nur nach instancename & measurement gruppieren\r\n  |> last()                                    // Holt den letzten Wert je Gruppe\r\n  |> keep(columns: [\"_time\", \"_value\", \"_measurement\", \"instancename\", \"abacus_informations\"])\r\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -504,12 +551,28 @@
           }
         },
         {
+          "id": "calculateField",
+          "options": {
+            "alias": "Silent Hotfix verfügbar",
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "abacus_silenthotifx_available",
+                "abacus_silenthotfix_available"
+              ],
+              "reducer": "lastNotNull"
+            }
+          }
+        },
+        {
           "id": "organize",
           "options": {
             "excludeByName": {
               "CPU - Threads": true,
               "Total Memory (GB)": true,
               "abacus": true,
+              "abacus_silenthotfix_available": true,
+              "abacus_silenthotifx_available": true,
               "abacus_ulc_session_active": true,
               "abacus_vaadin_ui_active": true,
               "disk_free_bytes": true,
@@ -520,27 +583,29 @@
             },
             "includeByName": {},
             "indexByName": {
-              "Aktiv Sessions": 17,
+              "Aktiv Sessions": 1,
               "CPU - Threads": 6,
               "Free Disk (GB)": 13,
               "Free Memory (GB)": 7,
               "Instanz / Metrik": 0,
+              "Silent Hotfix verfügbar": 4,
               "Total Memory (GB)": 8,
+              "abacus": 16,
               "abacus_installed_patch": 3,
+              "abacus_silenthotfix_available": 17,
               "abacus_ulc_session_active": 14,
               "abacus_vaadin_ui_active": 15,
               "abacus_version": 2,
               "disk_free_bytes": 12,
-              "silenthotfix_available": 4,
-              "static.abacus_informationen2": 16,
               "system_cpu_usage": 9,
               "system_cpu_usage * 100": 5,
               "system_info_memory_available_bytes": 10,
               "system_info_memory_total_bytes": 11,
-              "system_os": 1
+              "system_os": 18
             },
             "renameByName": {
               "abacus_installed_patch": "Patch",
+              "abacus_silenthotifx_available": "Silent Hotfix verfügbar",
               "abacus_ulc_session_active": "",
               "abacus_version": "Version",
               "silenthotfix_available": "Silent Hotfix",
@@ -555,7 +620,8 @@
       "type": "table"
     }
   ],
-  "schemaVersion": 41,
+  "preload": false,
+  "schemaVersion": 42,
   "tags": [
     "1.0.0"
   ],
@@ -563,8 +629,12 @@
     "list": [
       {
         "current": {},
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
         "definition": "buckets()",
-        "label": "Kunde",
+        "label": "Gruppe",
         "name": "bucket",
         "options": [],
         "query": {
@@ -573,6 +643,40 @@
         "refresh": 1,
         "regex": "/^[^_].*/",
         "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {},
+        "datasource": {
+          "type": "influxdb",
+          "uid": "${DS}"
+        },
+        "definition": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> group(columns: [\"environment\"])\r\n  |> distinct(column: \"environment\")\r\n  |> keep(columns: [\"_value\"])\r\n",
+        "includeAll": true,
+        "label": "Umgebung",
+        "name": "environment",
+        "options": [],
+        "query": {
+          "query": "from(bucket: \"${bucket}\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"disk_total_bytes\")\r\n  |> group(columns: [\"environment\"])\r\n  |> distinct(column: \"environment\")\r\n  |> keep(columns: [\"_value\"])\r\n"
+        },
+        "refresh": 1,
+        "regex": "",
+        "staticOptions": [],
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {},
+        "description": "",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Data source",
+        "name": "DS",
+        "options": [],
+        "query": "influxdb",
+        "refresh": 1,
+        "regex": "/^[Ii]nflux[Dd][Bb].*$/",
+        "type": "datasource"
       }
     ]
   },
@@ -581,7 +685,6 @@
     "to": "now"
   },
   "timepicker": {
-    "hidden": true,
     "refresh_intervals": [
       "30s",
       "1m",
@@ -596,6 +699,5 @@
   "timezone": "browser",
   "title": "Abacus Home - Übersicht",
   "uid": "celuz4cni330ge",
-  "version": 4,
-  "weekStart": ""
+  "version": 12
 }
